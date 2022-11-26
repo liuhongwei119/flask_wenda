@@ -10,7 +10,7 @@ Flask @ https://github.com/mitsuhiko/flask/tarball/master
 Flask-Mail==0.9.1
 Flask-Migrate==4.0.0
 Flask-SQLAlchemy==3.0.2
-Flask-WTF==1.0.1
+Flask-WTF==1.0.1git remote add origin
 idna==3.4
 importlib-metadata==5.0.0
 importlib-resources==5.10.0
