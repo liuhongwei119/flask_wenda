@@ -1,24 +1,51 @@
-from flask import Flask
+from flask import Flask, session, g
+import config
+from exts import db, mail
+from models import UserModel
+from blueprint.qa import bp as qa_bp
+from blueprint.auth import bp as auth_bp
+from flask_migrate import Migrate
+from gevent import pywsgi
 
 app = Flask(__name__)
 
+app = Flask(__name__)
+# 绑定配置文件
+app.config.from_object(config)
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+db.init_app(app)
+mail.init_app(app)
+
+migrate = Migrate(app, db)
+
+app.register_blueprint(qa_bp)
+app.register_blueprint(auth_bp)
 
 
-def create_app():
-    # 这个工厂方法可以从你的原有的 `__init__.py` 或者其它地方引入。
-    app = Flask(__name__)
-    return app
+# blueprint：用来做模块化的
+# 电影、读书、音乐、xxx
+
+# flask db init：只需要执行一次
+# flask db migrate：将orm模型生成迁移脚本
+# flask db upgrade：将迁移脚本映射到数据库中
+
+# before_request/ before_first_request/ after_request
+# hook
+@app.before_request
+def my_before_request():
+    user_id = session.get("user_id")
+    if user_id:
+        user = UserModel.query.get(user_id)
+        setattr(g, "user", user)
+    else:
+        setattr(g, "user", None)
 
 
-application = create_app()
+@app.context_processor
+def my_context_processor():
+    return {"user": g.user}
+
 
 if __name__ == '__main__':
-    application.run(
-        debug=True,
-        port=8000,
-        host="0.0.0.0"
-    )
+    server = pywsgi.WSGIServer(('0.0.0.0', 8787), app)
+    server.serve_forever()
