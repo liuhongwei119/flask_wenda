@@ -80,7 +80,8 @@ def get_email_captcha():
     captcha = random.sample(source, 4)
     captcha = "".join(captcha)
     # I/O：Input/Output
-    message = Message(subject="注册验证码", recipients=[email], body=f"hello, 您的验证码是:{captcha}")
+    words = "莫过于最好的时光与你相遇"
+    message = Message(subject="Welcome", recipients=[email], body=f"您的验证码是:{captcha}")
     mail.send(message)
     # memcached/redis
     # 用数据库表的方式存储
